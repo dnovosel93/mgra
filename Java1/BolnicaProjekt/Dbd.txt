@@ -1,0 +1,207 @@
+Table Osoba{
+  Id int [primary key]
+  Ime varchar
+  Prezime varchar
+  OIB varchar
+}
+
+Table Drzava{
+  Id int [primary key]
+  Naziv varchar
+}
+
+Table Grad{
+  Id int [primary key]
+  PostanskiBroj varchar
+  DrzavaId int [ref: > Drzava.Id]
+}
+
+Table Adresa{
+  Id int [primary key]
+  Ulica varchar
+  GradId int [ref: > Grad.Id]
+}
+
+Table Uredaj{
+  Id int [primary key]
+  TelefonPosao varchar
+  TelefonKucni varchar
+  Mobitel varchar
+  Pager varchar
+  Fax varchar
+  email varchar
+}
+
+Table Kontakt{
+  Id int [primary key]
+  TrenutnaAdresaId int [ref: > Adresa.Id]
+  StalnaAdresaId int [ref: > Adresa.Id]
+  UredajId int [ref: > Uredaj.Id]
+}
+
+Table Rodbina{
+  Id int [primary key]
+  OsobaId int [ref: > Osoba.Id]
+  OdnosSapacijentom varchar
+  KontaktId int [ref: > Kontakt.Id]
+}
+
+Table OsobniDetalj{
+  Id int [primary key]
+  BracniStatus bit
+  BrojUzdrzavanihOsoba int
+  Visina int
+  Kilaza int
+  KrvnaGrupa varchar
+}
+
+Table Profesija{
+  Id int [primary key]
+  Naziv varchar
+  GodisnjiPrihod decimal
+}
+
+Table Lifestyle{
+  Id int [primary key]
+  Vegetarijanac bit
+	Pusac bit
+	AvgBrojCigareta int
+	AlkoholnaPica bit
+	AvgBrojAlkoholnihPica int
+	AvgBrojKava int
+	AvgBrojSlatkihPica int
+	RedovniObroci bit
+	KucnaKuhinja bit
+}
+
+Table OsnovnaPrituzba{
+  Id int [primary key]
+  Izjava varchar
+  PrijasnjiTrtmani varchar
+  BolnickoLjecenje bit
+}
+
+Table MedicinskiDetalji{
+  Id int [primary key]
+  Dijabeticar bit
+  Hopertenzivna bit
+  SrcanoStanje varchar
+  RespiratornoStanje varchar
+  ProbavnoStanje varchar
+  OrtopedskoStanje varchar
+  MisicnoStanje varchar
+  NeuroloskoStanje varchar
+  Alergije varchar
+  LijekoviNuspojave varchar
+  PrijasnjeOperacije varchar
+}
+
+Table Crf{
+  IdOutpatient int [primary key]
+  OsobaId int [ref: > Osoba.Id]
+  DatumRodjenja date
+  Spol varchar
+  KontaktId int [ref: > Kontakt.Id]
+  RodbinaId int [ref: > Rodbina.Id]
+  OsobniDetaljiId int [ref: > OsobniDetalj.Id]
+  ProfesijaId int [ref: > Profesija.Id]
+  LifestyleId int [ref: > Lifestyle.Id]
+  OsnovnaPrituzbaId int [ref: > OsnovnaPrituzba.Id]
+  MedicinskiDetaljiId int [ref: > MedicinskiDetalji.Id]
+  DatumRegistracije date
+}
+
+Table Mrf{
+  Id int [primary key]
+  OsobaId int [ref: > Osoba.Id]
+  Spol varchar
+  DatumRodjenja date
+  OpciZapis varchar
+  Kontakt1 varchar
+  Kontakt2 varchar
+  RodbinaId int [ref: > Osoba.Id]
+}
+
+Table TipZaposlenika{
+  Id int [primary key]
+  Naziv varchar
+}
+
+Table Zaposlenik{
+  Id int [primary key]
+  OsobaId int [ref: > Osoba.Id]
+  TipZaposlenikaId int [ref: > TipZaposlenika.Id]
+  Placa decimal
+}
+
+Table KreditnaKartica{
+  Id int [primary key]
+  BrojKartice varchar
+  DatumIsteka date
+}
+
+
+Table Racun{
+  BrojRacuna varchar [primary key]
+  UkupnaCijena varchar
+  KreditnaKarticaId int [ref:> KreditnaKartica.Id]
+}
+
+Table ProdajnaStavka{
+  Id int [primary key]
+  RacunId varchar [ref: > Racun.BrojRacuna]
+}
+
+
+Table LabaratorijskoTestiranje{
+  Id int [primary key]
+  Naziv varchar
+  Cijena decimal
+}
+
+Table NarucenaLabaratorijskaTestirana{
+  Id int [primary key]
+  CrfId int [ref: > Crf.IdOutpatient]
+  LabaratorijskoTestiranjeId int [ref: > LabaratorijskoTestiranje.Id]
+  RezultatiTestiranja varchar
+  DatumNarudbe date
+  DatumIsporuke date
+  StavkaId int [ref: > ProdajnaStavka.Id]
+}
+
+Table TipTretmana{
+  Id int [primary key]
+  Naziv varchar
+}
+
+Table Tretman{
+  Id int [primary key]
+  Naziv varchar
+  Cijena decimal
+  PotrebnaOprema varchar
+  TipTretmanaId int [ref: > TipTretmana.Id]
+}
+
+Table NaruceniTretmani{
+  Id int [primary key]
+  CrfId int [ref: > Crf.IdOutpatient]
+  IzvrsiteljTretmanaId int [ref: > Zaposlenik.Id]
+  TretmanId int [ref: > Tretman.Id]
+  DatumNarudbe date
+  DatumIsporuke date
+  StavkaId int [ref: > ProdajnaStavka.Id]
+}
+
+Table Lijek{
+  Id int [primary key]
+  Naziv varchar
+  Cijena decimal
+}
+
+Table KupljeniLijek{
+  Id int [primary key]
+  LijekID int [ref: > Lijek.Id]
+  DatumKupnje date
+  StavkaId int [ref: > ProdajnaStavka.Id]
+}
+
