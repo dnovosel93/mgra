@@ -65,7 +65,7 @@ DrzavaId INT FOREIGN KEY REFERENCES Drzava(Id)
 )
 GO
 
-CREATE PROC ReadGradDrzave(@DrzavaId INT)
+CREATE PROC ReadGradoviDrzave(@DrzavaId INT)
 AS
 BEGIN 
 	SELECT Id,Naziv,PostanskiBroj FROM Grad WHERE DrzavaId = @DrzavaId
@@ -518,6 +518,3 @@ CREATE TABLE KupljeniLijek(
 	StavkaId INT FOREIGN KEY REFERENCES ProdanaStavka(Id)
 )
 GO
-
-
-

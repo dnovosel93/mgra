@@ -11,6 +11,9 @@ public class ProcedureHelper {
     public static final String procCreateLifestyle = "{CALL CreateLifestyle(?,?,?,?,?,?,?,?,?,?)}";
     public static final String procCreateMRF = "{CALL CreateMRF(?,?,?,?,?,?,?)}";
     
+    public static final String viewReadDrzave = "SELECT Id,Naziv FROM ReadDrzave";
+    public static final String procReadGradoviDrzave = "{CALL ReadGradoviDrzave(?)}";
+    
     //Osoba
     public static final String paramOsobaIme = "Ime";
     public static final String paramOsobaPrezime = "Prezime";

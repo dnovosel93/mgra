@@ -2,14 +2,17 @@ package DAL;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.sql.DataSource;
 
 public class DataBase {
 
     private static DataSource ds = SourceHelper.kreirajDataSource();
 
-    public int CreateOsoba(Osoba osoba) throws SQLException {
+    public int createOsoba(Osoba osoba) throws SQLException {
         int idOsoba = -1;
 
         try (Connection con = ds.getConnection(); CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateOsoba)) {
@@ -24,7 +27,7 @@ public class DataBase {
         return idOsoba;
     }
 
-    public int CreateAdresa(Adresa adresa) throws SQLException {
+    public int createAdresa(Adresa adresa) throws SQLException {
         int idAdresa = -1;
 
         try (Connection con = ds.getConnection(); CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateAdresa)) {
@@ -39,7 +42,7 @@ public class DataBase {
         return idAdresa;
     }
 
-    public int CreateUredaj(Uredaj uredaj) throws SQLException {
+    public int createUredaj(Uredaj uredaj) throws SQLException {
         int idUredaj = -1;
 
         try (Connection con = ds.getConnection(); CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateUredaj)) {
@@ -57,7 +60,7 @@ public class DataBase {
         return idUredaj;
     }
 
-    public int CreateKontakt(Kontakt kontakt) throws SQLException {
+    public int createKontakt(Kontakt kontakt) throws SQLException {
         int idKontakt = -1;
 
         try (Connection con = ds.getConnection(); CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateKontakt)) {
@@ -72,7 +75,7 @@ public class DataBase {
         return idKontakt;
     }
 
-    public int CreateRodbina(Rodbina rodbina) throws SQLException {
+    public int createRodbina(Rodbina rodbina) throws SQLException {
         int idRodbina = -1;
 
         try (Connection con = ds.getConnection(); CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateRodbina)) {
@@ -87,7 +90,7 @@ public class DataBase {
         return idRodbina;
     }
 
-    public int CreateOsobniDetalji(OsobniDetalj osobniDetalj) throws SQLException {
+    public int createOsobniDetalji(OsobniDetalj osobniDetalj) throws SQLException {
         int idOsobniDetalji = -1;
 
         try (Connection con = ds.getConnection(); CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateOsobniDetalji)) {
@@ -104,7 +107,7 @@ public class DataBase {
         return idOsobniDetalji;
     }
 
-    public int CreateProfesija(Profesija profesija) throws SQLException {
+    public int createProfesija(Profesija profesija) throws SQLException {
         int idProfesija = -1;
 
         try (Connection con = ds.getConnection(); CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateProfesija)) {
@@ -117,35 +120,70 @@ public class DataBase {
         }
         return idProfesija;
     }
-    
-    public int CreateLifestyle(Lifestyle lifestyle)throws SQLException{
+
+    public int createLifestyle(Lifestyle lifestyle) throws SQLException {
         int idLifestyle = -1;
-        
-        try(Connection con = ds.getConnection();CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateLifestyle)){
+
+        try (Connection con = ds.getConnection(); CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateLifestyle)) {
             stmn.setBoolean(1, lifestyle.getVegetarijanac());
             stmn.setBoolean(2, lifestyle.getPusac());
             stmn.setInt(3, lifestyle.getAvgBrojCigareta());
             stmn.setBoolean(4, lifestyle.getAlkoholnaPica());
             stmn.setInt(5, lifestyle.getAvgBrojAlkoholnihPica());
             stmn.setInt(6, lifestyle.getAvgBrojKava());
-            stmn.setInt(7,lifestyle.getAvgBrojSlatkihPica());
+            stmn.setInt(7, lifestyle.getAvgBrojSlatkihPica());
             stmn.setBoolean(8, lifestyle.getRedovnoObroci());
             stmn.setBoolean(9, lifestyle.getKucnaKuhinja());
             stmn.registerOutParameter(10, java.sql.Types.INTEGER);
-            
+
             stmn.executeUpdate();
-            idLifestyle=stmn.getInt(10);
+            idLifestyle = stmn.getInt(10);
         }
         return idLifestyle;
     }
 
-    public int CreateMRF(MRF mrf) throws SQLException {
+    public int createMRF(MRF mrf) throws SQLException {
         int idMRF = -1;
-        
-        try(Connection con = ds.getConnection();CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateMRF)){
+
+        try (Connection con = ds.getConnection(); CallableStatement stmn = con.prepareCall(ProcedureHelper.procCreateMRF)) {
             stmn.setInt(1, mrf.getOsobaId());
-            stmn.setString(2, mrf.getSpol());  
+            stmn.setString(2, mrf.getSpol());
         }
         return idMRF;
+    }
+
+    public List<Drzava> gatDrzave() throws SQLException {
+        List<Drzava> listaDrzava = new ArrayList<>();
+        
+        try(Connection con = ds.getConnection();CallableStatement stm = con.prepareCall(ProcedureHelper.viewReadDrzave)){
+            ResultSet rs = stm.executeQuery();
+            
+            while(rs.next()){
+                Drzava d = new Drzava();
+                d.setId(rs.getInt("Id"));
+                d.setNaziv(rs.getString("Naziv"));
+                listaDrzava.add(d);
+            }
+        }
+        return listaDrzava;
+    }
+
+    public List<Grad> getGradoviDrzave(int drzavaId) throws SQLException {
+        List<Grad> listaGradova = new ArrayList<>();
+
+        try (Connection con = ds.getConnection(); CallableStatement stmn = con.prepareCall(ProcedureHelper.procReadGradoviDrzave)) {
+            stmn.setInt("@DrzavaId", drzavaId);
+
+            ResultSet rs = stmn.executeQuery();
+
+            while (rs.next()) {
+                Grad g = new Grad();
+                g.setId(rs.getInt("Id"));
+                g.setNaziv(rs.getString("Naziv"));
+                g.setPostanskiBroj(rs.getString("PostanskiBroj"));
+                listaGradova.add(g);
+            }
+        }
+        return listaGradova;
     }
 }

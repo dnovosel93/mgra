@@ -1,9 +1,13 @@
 package DAL;
 
 public abstract class DbType {
-    private int Id;
+    private int id;
 
     public int getId() {
-        return Id;
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

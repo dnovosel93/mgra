@@ -65,44 +65,6 @@ public class Inputs {
         return osoba;
     }
 
-    public static Adresa unosAdresa() {
-        String ulica;
-        String grad;
-        String drzava;
-        String postanskiBroj;
-
-        do {
-            ulica = inputText("Ulica");
-            if (!Validator.isWord(ulica)) {
-                exceptionFormatMsg("ULICA", msgWordFormat);
-            }
-        } while (!Validator.isWord(ulica));
-
-        do {
-            grad = inputText("Grad");
-            if (!Validator.isWord(grad)) {
-                exceptionFormatMsg("GRAD", msgWordFormat);
-            }
-        } while (!Validator.isWord(grad));
-
-        do {
-            drzava = inputText("Drzava");
-            if (!Validator.isWord(drzava)) {
-                exceptionFormatMsg("DRZAVA", msgWordFormat);
-            }
-        } while (!Validator.isWord(drzava));
-
-        do {
-            postanskiBroj = inputText("Postanski broj");
-            if (!Validator.isWordWithOnlyNumbers(postanskiBroj)) {
-                exceptionFormatMsg("POSTANSKI BROJ", grad);
-            }
-        } while (!Validator.isWordWithOnlyNumbers(postanskiBroj));
-
-        Adresa adresa = new Adresa(ulica, grad, drzava, postanskiBroj);
-        return adresa;
-    }
-
     public static Uredaj unosUredaj() {
         String telefonPosao;
         String telefonKucni;
@@ -124,6 +86,10 @@ public class Inputs {
         Uredaj uredjaj = new Uredaj(telefonPosao, telefonKucni, mobitel, pager, fax, email);
         return uredjaj;
     }
+    
+    public static void unosAdresa(){
+        
+    }
 
     public static Kontakt unosKontakt() {
         Adresa trenutnaAdresa;
@@ -136,7 +102,7 @@ public class Inputs {
 
         Kontakt kontak = new Kontakt(trenutnaAdresa, stalnaAdresa, uredaj);
         return kontak;
-    }
+}
 
     public static Rodbina unosRodbina() {
         Osoba osoba;
