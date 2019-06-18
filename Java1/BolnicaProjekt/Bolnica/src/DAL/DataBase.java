@@ -152,7 +152,7 @@ public class DataBase {
         return idMRF;
     }
 
-    public List<Drzava> gatDrzave() throws SQLException {
+    public List<Drzava> getDrzave() throws SQLException {
         List<Drzava> listaDrzava = new ArrayList<>();
         
         try(Connection con = ds.getConnection();CallableStatement stm = con.prepareCall(ProcedureHelper.viewReadDrzave)){

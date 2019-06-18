@@ -2,6 +2,9 @@ package PL;
 
 import DAL.Adresa;
 import DAL.CRF;
+import DAL.DataBase;
+import DAL.Drzava;
+import DAL.Grad;
 import DAL.Kontakt;
 import DAL.Lifestyle;
 import DAL.MedicinskiDetalji;
@@ -13,13 +16,16 @@ import DAL.Rodbina;
 import DAL.Uredaj;
 import DAL.Validator;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 import jdk.nashorn.internal.ir.ContinueNode;
 
 public class Inputs {
 
+    private static DataBase db = new DataBase();
     private static Scanner sc = new Scanner(System.in);
     private static final String msgWordFormat = "rijec";
     private static final String msgWordWithOnlyNumbersFormat = "brojevi";
@@ -86,9 +92,34 @@ public class Inputs {
         Uredaj uredjaj = new Uredaj(telefonPosao, telefonKucni, mobitel, pager, fax, email);
         return uredjaj;
     }
-    
-    public static void unosAdresa(){
-        
+
+    public static Adresa unosAdresa() {
+        System.out.println("ADRESA");
+        String ulica = inputText("Ulica");
+        String kucniBroj = inputText("Kucni broj");
+
+        System.out.println("DRZAVE");
+        prikazDrzava();
+        int drzavaId = inputInteger("DrzavaId");
+        prikazGradovaDrzave(drzavaId);
+        int gradId = inputInteger("GradId");
+
+        Adresa adresa = new Adresa(ulica, kucniBroj, gradId);
+        return adresa;
+    }
+
+    private static int odabirGrada() {
+        System.out.println("ODABIR GRADA");
+        System.out.println("Drzave");
+        prikazDrzava();
+        int drzavaId;
+        drzavaId = inputInteger("Id drzava");
+        System.out.println("Gradovi");
+        prikazGradovaDrzave(drzavaId);
+        int gradId;
+        gradId = inputInteger("Id grad");
+
+        return gradId;
     }
 
     public static Kontakt unosKontakt() {
@@ -102,7 +133,7 @@ public class Inputs {
 
         Kontakt kontak = new Kontakt(trenutnaAdresa, stalnaAdresa, uredaj);
         return kontak;
-}
+    }
 
     public static Rodbina unosRodbina() {
         Osoba osoba;
@@ -251,10 +282,10 @@ public class Inputs {
         System.out.println("Ispis");
         osoba = unosOsoba();
         datumRodjenja = inputDate("Datum rodjenja");
-        
+
         do {
-            spol = inputCharacter("Spol", "Spol");
-            
+            spol = inputCharacter("Spol", "M/Z");
+
             if (!Validator.isSex(spol)) {
                 exceptionFormatMsg("Spol", msgSpolFormat);
             }
@@ -268,13 +299,13 @@ public class Inputs {
         osnovnaPrituzba = unosOsnovnaPrituzba();
         medicinskiDetalji = unosMedicinskiDetalji();
         datumRegistracije = getCurentDate();
-        
-        CRF crf = new CRF(osoba,datumRodjenja,spol,kontakt,rodbina,osobniDetalj,profesija,lifestyle,osnovnaPrituzba,medicinskiDetalji,datumRegistracije);
+
+        CRF crf = new CRF(osoba, datumRodjenja, spol, kontakt, rodbina, osobniDetalj, profesija, lifestyle, osnovnaPrituzba, medicinskiDetalji, datumRegistracije);
         return crf;
     }
-    
-    public static void unosMRF(){
-        
+
+    public static void unosMRF() {
+
     }
 
     public static void exceptionFormatMsg(String polje, String format) {
@@ -287,24 +318,23 @@ public class Inputs {
         String unos = sc.nextLine();
         return unos;
     }
-    
-    public static char inputCharacter(String polje,String format){
-        System.out.print(polje + ":");
-        char slovo = sc.next().charAt(0);
-        return slovo;
+
+    public static char inputCharacter(String polje, String format) {
+        System.out.println(polje+"["+format+"]:");
+        char c = sc.next(".").charAt(0);
+        return c;
     }
 
     public static int inputInteger(String polje) {
         System.out.print(polje + ":");
-        int broj = -1;
+        int broj = 0;
         boolean valid;
-
         do {
             valid = true;
-            if (sc.hasNextInt()) {
+            try {
                 broj = sc.nextInt();
-            } else {
-                valid = false;
+                String temp = sc.nextLine();
+            } catch (NumberFormatException ex) {
                 exceptionFormatMsg(polje, msgBrojFormat);
             }
         } while (!valid);
@@ -376,9 +406,31 @@ public class Inputs {
         } while (!valid);
         return broj;
     }
-    
-    public static Date getCurentDate(){
+
+    public static Date getCurentDate() {
         Date date = new Date();
         return date;
+    }
+
+    private static void prikazGradovaDrzave(int idDrzava) {
+        try {
+            List<Grad> listaGradova = db.getGradoviDrzave(idDrzava);
+            for (Grad grad : listaGradova) {
+                System.out.println(grad.toString());
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    private static void prikazDrzava() {
+        try {
+            List<Drzava> listaDrzava = db.getDrzave();
+            for (Drzava drzava : listaDrzava) {
+                System.out.println(drzava.toString());
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 }

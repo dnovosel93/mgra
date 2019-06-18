@@ -17,18 +17,7 @@ public class Bolnica {
     //29085257141
 
     public static void main(String[] args) {
-        DataBase database = new DataBase();
-
-        try {
-            List<Drzava> listaGradova = database.gatDrzave();
-            for (Drzava d : listaGradova) {
-                System.out.println(d.toString());
-            }
-        }
-        catch(SQLException ex){
-            System.out.println(ex);
-            System.out.println(ex.getMessage());
-            System.out.println(ex.getErrorCode());
-        }
+       Menu menu = new Menu();
+       menu.registracijaKorisnika();
     }
 }
