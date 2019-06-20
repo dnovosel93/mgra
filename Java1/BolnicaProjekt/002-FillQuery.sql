@@ -6,8 +6,6 @@ INSERT INTO Drzava(Naziv) VALUES ('Slovenija')
 INSERT INTO Drzava(Naziv) VALUES ('Bosna i Hercegovina')
 INSERT INTO Drzava(Naziv) VALUES ('Republika srpska')
 
-select * FROM Grad
-
 INSERT INTO Grad(Naziv,PostanskiBroj,DrzavaId) 
 VALUES ('Zagreb','10000',1)
 INSERT INTO Grad(Naziv,PostanskiBroj,DrzavaId) 

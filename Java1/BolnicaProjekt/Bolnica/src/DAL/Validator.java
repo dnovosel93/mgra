@@ -9,10 +9,14 @@ public class Validator {
     private static final String[] poljeKrvnaGrupa = {"A+", "B+", "AB+", "A-", "B-", "AB-", "0+", "0-"};
     private static final char spolMuski = 'M';
     private static final char spolZenski = 'Z';
-    
-    public static boolean isWord(String unos) {
-        char[] poljeZnakova = unos.toCharArray();
+    public static char[] znakoviMobitela = {'/', '+', '-'};
 
+    public static boolean isTextSlova(String unos) {
+        if (isEmpty(unos)) {
+            return false;
+        }
+
+        char[] poljeZnakova = unos.toCharArray();
         for (char c : poljeZnakova) {
             if (!Character.isLetter(c)) {
                 return false;
@@ -21,7 +25,33 @@ public class Validator {
         return true;
     }
 
-    public static boolean isWordWithOnlyNumbers(String unos) {
+    public static boolean isTextMobitel(String unos) {
+        if (isEmpty(unos)) {
+            return false;
+        }
+        char[] poljeZnakova = unos.toCharArray();
+        for (char c : poljeZnakova) {
+            if (Character.isDigit(c) || new String(poljeZnakova).indexOf(c) == -1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isTextKucniBroj(String unos) {
+        if (isEmpty(unos)) {
+            return false;
+        }
+        if (!Character.isDigit(unos.charAt(0))) {
+            return false;
+        }
+        if (unos.length() > 4) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isTextNumbers(String unos) {
         char[] polje = unos.toCharArray();
 
         for (char c : polje) {
@@ -32,7 +62,7 @@ public class Validator {
         return true;
     }
 
-    public static boolean isOIB(String oib) {
+    public static boolean isTextOIB(String oib) {
         if (oib.length() != 11) {
             return false;
         }
@@ -63,13 +93,13 @@ public class Validator {
         return (Integer.parseInt(Character.toString(oib.charAt(oib.length() - 1))) == kontrolniBroj);
     }
 
-    public static boolean isEmail(String email) {
+    public static boolean isTextEmail(String email) {
         Pattern pattern = Pattern.compile(emailRegex, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
 
-    public static boolean isBloodType(String krvnaGrupa) {
+    public static boolean isTextBloodType(String krvnaGrupa) {
         for (int i = 0; i < poljeKrvnaGrupa.length; i++) {
             if (poljeKrvnaGrupa[i] == krvnaGrupa) {
                 return true;
@@ -77,9 +107,17 @@ public class Validator {
         }
         return false;
     }
-    
-    public static boolean isSex(char input){
+
+    public static boolean isCharSex(char input) {
         char safeInput = Character.toUpperCase(input);
         return (safeInput == spolMuski || safeInput == spolZenski);
+    }
+
+    private static boolean isEmpty(String unos) {
+        unos.trim();
+        if (unos.length() == 0) {
+            return true;
+        }
+        return false;
     }
 }

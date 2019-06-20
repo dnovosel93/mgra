@@ -18,8 +18,10 @@ import DAL.Validator;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import jdk.nashorn.internal.ir.ContinueNode;
 
@@ -47,25 +49,25 @@ public class Inputs {
         do {
             ime = inputText("Ime");
 
-            if (!Validator.isWord(ime)) {
+            if (!Validator.isTextSlova(ime)) {
                 exceptionFormatMsg("IME", msgWordFormat);
             }
-        } while (!Validator.isWord(ime));
+        } while (!Validator.isTextSlova(ime));
 
         do {
             prezime = inputText("Prezime");
 
-            if (!Validator.isWord(prezime)) {
+            if (!Validator.isTextSlova(prezime)) {
                 exceptionFormatMsg("PREZIME", msgWordFormat);
             }
-        } while (!Validator.isWord(prezime));
+        } while (!Validator.isTextSlova(prezime));
 
         do {
             oib = inputText("OIB");
-            if (!Validator.isOIB(oib)) {
+            if (!Validator.isTextOIB(oib)) {
                 exceptionFormatMsg("OIB", msgOibFormat);
             }
-        } while (!Validator.isOIB(oib));
+        } while (!Validator.isTextOIB(oib));
 
         Osoba osoba = new Osoba(ime, prezime, oib);
         return osoba;
@@ -78,29 +80,79 @@ public class Inputs {
         String pager;
         String fax;
         String email;
-        boolean validan = true;
 
         do {
             telefonPosao = inputText("Telefon posao");
-        } while (!validan);
+            if (!Validator.isTextMobitel(telefonPosao)) {
+                exceptionFormatMsg("Telefon posao", "Nesto");
+            }
+        } while (!Validator.isTextMobitel(telefonPosao));
 
-        telefonKucni = inputText("Telefon kucni");
-        mobitel = inputText("Mobitel");
-        pager = inputText("Pager");
-        fax = inputText("Fax");
-        email = inputText("Email");
+        do {
+            telefonKucni = inputText("Telefon kucni");
+            if (!Validator.isTextMobitel(telefonKucni)) {
+                exceptionFormatMsg("Telefon kucni", "Nesto");
+            }
+        } while (!Validator.isTextMobitel(telefonKucni));
+
+        do {
+            mobitel = inputText("Mobitel");
+            if (!Validator.isTextMobitel(mobitel)) {
+                exceptionFormatMsg("Mobitel", "Nesto");
+            }
+        } while (!Validator.isTextMobitel(mobitel));
+
+        do {
+            pager = inputText("Pager");
+            if (!Validator.isTextMobitel(pager)) {
+                exceptionFormatMsg("Pager", "Nesto");
+            }
+        } while (!Validator.isTextMobitel(pager));
+
+        do {
+            fax = inputText("Fax");
+            if (!Validator.isTextMobitel(fax)) {
+                exceptionFormatMsg("Fax", "Nesto");
+            }
+        } while (!Validator.isTextMobitel(fax));
+
+        do {
+            email = inputText("E-mail");
+            if (!Validator.isTextEmail(email)) {
+                exceptionFormatMsg("E-mail", "Nesto");
+            }
+        } while (!Validator.isTextEmail(email));
+
         Uredaj uredjaj = new Uredaj(telefonPosao, telefonKucni, mobitel, pager, fax, email);
         return uredjaj;
     }
 
     public static Adresa unosAdresa() {
         System.out.println("ADRESA");
-        String ulica = inputText("Ulica");
-        String kucniBroj = inputText("Kucni broj");
+        String ulica;
+        String kucniBroj;
+
+        do {
+            ulica = inputText("Ulica");
+            if (!Validator.isTextSlova(ulica)) {
+                exceptionFormatMsg("Ulica", "Nesto");
+            }
+        } while (!Validator.isTextSlova(ulica));
+
+        do {
+            kucniBroj = inputText("Kucni broj");
+            if (!Validator.isTextKucniBroj(kucniBroj)) {
+                exceptionFormatMsg("Kucni broj", "Nesto");
+            }
+        } while (!Validator.isTextKucniBroj(ulica));
 
         System.out.println("DRZAVE");
-        prikazDrzava();
+        Map<String,Integer> mapaDrzava = kreirajHashMapuDrzava();
+        ispisHashMape(mapaDrzava, "DrzavaId");
+        
+        do{
         int drzavaId = inputInteger("DrzavaId");
+        }while(validId);
         prikazGradovaDrzave(drzavaId);
         int gradId = inputInteger("GradId");
 
@@ -111,7 +163,6 @@ public class Inputs {
     private static int odabirGrada() {
         System.out.println("ODABIR GRADA");
         System.out.println("Drzave");
-        prikazDrzava();
         int drzavaId;
         drzavaId = inputInteger("Id drzava");
         System.out.println("Gradovi");
@@ -281,15 +332,16 @@ public class Inputs {
 
         System.out.println("Ispis");
         osoba = unosOsoba();
+        
         datumRodjenja = inputDate("Datum rodjenja");
 
         do {
             spol = inputCharacter("Spol", "M/Z");
 
-            if (!Validator.isSex(spol)) {
+            if (!Validator.isCharSex(spol)) {
                 exceptionFormatMsg("Spol", msgSpolFormat);
             }
-        } while (!Validator.isSex(spol));
+        } while (!Validator.isCharSex(spol));
 
         kontakt = unosKontakt();
         rodbina = unosRodbina();
@@ -308,20 +360,16 @@ public class Inputs {
 
     }
 
-    public static void exceptionFormatMsg(String polje, String format) {
-        System.out.println("Pogršan format u polju:" + format);
-        System.out.println("Polje zahtjeva format:" + format);
-    }
-
     public static String inputText(String polje) {
-        System.out.print(polje + ":");
+        System.out.print(polje + "[" + "]:");
         String unos = sc.nextLine();
         return unos;
     }
 
     public static char inputCharacter(String polje, String format) {
-        System.out.println(polje+"["+format+"]:");
-        char c = sc.next(".").charAt(0);
+        System.out.print(polje + "[" + format + "]:");
+        char c = sc.next().charAt(0);
+        sc.nextLine();
         return c;
     }
 
@@ -332,9 +380,41 @@ public class Inputs {
         do {
             valid = true;
             try {
-                broj = sc.nextInt();
-                String temp = sc.nextLine();
+                broj = Integer.parseInt(sc.nextLine());
             } catch (NumberFormatException ex) {
+                valid = false;
+                exceptionFormatMsg(polje, msgBrojFormat);
+            }
+        } while (!valid);
+        return broj;
+    }
+
+    public static boolean inputBoolean(String polje) {
+        System.out.println(polje + "(" + msgBoolFormat + "):");
+        String unos;
+
+        do {
+            unos = sc.nextLine();
+
+            if (!unos.equals("D") && !unos.equals("N")) {
+                exceptionFormatMsg(polje, msgBoolFormat);
+            }
+        } while (!unos.equals("D") && !unos.equals("N"));
+
+        return unos.toUpperCase().equals("D");
+    }
+
+    private static BigDecimal inputBigDecimal(String polje) {
+        System.out.print(polje + ":");
+        BigDecimal broj = new BigDecimal(0);
+
+        boolean valid;
+        do {
+            valid = true;
+            try {
+                broj = sc.nextBigDecimal();
+            } catch (NumberFormatException ex) {
+                valid = false;
                 exceptionFormatMsg(polje, msgBrojFormat);
             }
         } while (!valid);
@@ -374,45 +454,18 @@ public class Inputs {
         return datum;
     }
 
-    public static boolean inputBoolean(String polje) {
-        System.out.println(polje + "(" + msgBoolFormat + "):");
-        String unos;
-
-        do {
-            unos = sc.nextLine();
-
-            if (!unos.equals("D") && !unos.equals("N")) {
-                exceptionFormatMsg(polje, msgBoolFormat);
-            }
-        } while (!unos.equals("D") && !unos.equals("N"));
-
-        return unos.toUpperCase().equals("D");
-    }
-
-    private static BigDecimal inputBigDecimal(String polje) {
-        System.out.print(polje + ":");
-        BigDecimal broj = new BigDecimal(0);
-
-        boolean valid;
-
-        do {
-            valid = true;
-            if (sc.hasNextBigDecimal()) {
-                broj = sc.nextBigDecimal();
-            } else {
-                valid = false;
-                exceptionFormatMsg(polje, msgBrojFormat);
-            }
-        } while (!valid);
-        return broj;
-    }
-
     public static Date getCurentDate() {
         Date date = new Date();
         return date;
     }
 
+    public static void exceptionFormatMsg(String polje, String format) {
+        System.out.println("Pogršan format u polju:" + polje);
+        System.out.println("Polje zahtjeva format:" + format);
+    }
+
     private static void prikazGradovaDrzave(int idDrzava) {
+
         try {
             List<Grad> listaGradova = db.getGradoviDrzave(idDrzava);
             for (Grad grad : listaGradova) {
@@ -423,14 +476,22 @@ public class Inputs {
         }
     }
 
-    private static void prikazDrzava() {
+    private static void ispisHashMape(Map<String, Integer> mapa, String naslov) {
+        for (Map.Entry<String, Integer> entry : mapa.entrySet()) {
+            System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+        }
+    }
+
+    private static Map<String, Integer> kreirajHashMapuDrzava() {
+        Map<String, Integer> mapaDrzava = new HashMap<>();
+
         try {
-            List<Drzava> listaDrzava = db.getDrzave();
-            for (Drzava drzava : listaDrzava) {
-                System.out.println(drzava.toString());
+            for (Drzava drzava : db.getDrzave()) {
+                mapaDrzava.put(drzava.getNaziv(), drzava.getId());
             }
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
+        return mapaDrzava;
     }
 }
