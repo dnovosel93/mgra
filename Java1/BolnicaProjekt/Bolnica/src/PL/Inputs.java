@@ -35,7 +35,7 @@ public class Inputs {
     private static final String msgPostanskiBrojFormat = "postanski broj (brojevi bez razmaka)";
     private static final String msgKrvnaGrupaFormat = "krvna grupa (A+,A-,B+,B-,AB+,AB-,0+,0-)";
     private static final String msgBrojFormat = "broj";
-    private static final String msgBoolFormat = "Da/Ne";
+    private static final String msgBoolFormat = "d/n";
     private static final String msgDatumDanFormat = "Dan (1-31)";
     private static final String msgDatumMjesecFormat = "Mjesec (1-12)";
     private static final String msgDatumGodinaFormat = "Godina (1900-2019)";
@@ -47,23 +47,23 @@ public class Inputs {
         String oib;
 
         do {
-            ime = inputText("Ime");
+            ime = inputWord("Ime");
 
-            if (!Validator.isTextSlova(ime)) {
+            if (!Validator.isWordSlova(ime)) {
                 exceptionFormatMsg("IME", msgWordFormat);
             }
-        } while (!Validator.isTextSlova(ime));
+        } while (!Validator.isWordSlova(ime));
 
         do {
-            prezime = inputText("Prezime");
+            prezime = inputWord("Prezime");
 
-            if (!Validator.isTextSlova(prezime)) {
+            if (!Validator.isWordSlova(prezime)) {
                 exceptionFormatMsg("PREZIME", msgWordFormat);
             }
-        } while (!Validator.isTextSlova(prezime));
+        } while (!Validator.isWordSlova(prezime));
 
         do {
-            oib = inputText("OIB");
+            oib = inputWord("OIB");
             if (!Validator.isTextOIB(oib)) {
                 exceptionFormatMsg("OIB", msgOibFormat);
             }
@@ -81,6 +81,7 @@ public class Inputs {
         String fax;
         String email;
 
+        System.out.println("UNOS PODATAKA O MOBILNIM UREDAJIMA");
         do {
             telefonPosao = inputText("Telefon posao");
             if (!Validator.isTextMobitel(telefonPosao)) {
@@ -127,10 +128,14 @@ public class Inputs {
         return uredjaj;
     }
 
-    public static Adresa unosAdresa() {
-        System.out.println("ADRESA");
+    public static Adresa unosAdresa(String polje) {
+        System.out.println(polje);
         String ulica;
         String kucniBroj;
+        int gradId;
+
+        Map<Integer, String> mapaDrzava = kreirajHashMapuDrzava();
+        int drzavaId;
 
         do {
             ulica = inputText("Ulica");
@@ -140,37 +145,32 @@ public class Inputs {
         } while (!Validator.isTextSlova(ulica));
 
         do {
-            kucniBroj = inputText("Kucni broj");
+            kucniBroj = inputWord("Kucni broj");
             if (!Validator.isTextKucniBroj(kucniBroj)) {
                 exceptionFormatMsg("Kucni broj", "Nesto");
             }
-        } while (!Validator.isTextKucniBroj(ulica));
+        } while (!Validator.isTextKucniBroj(kucniBroj));
 
-        System.out.println("DRZAVE");
-        Map<String,Integer> mapaDrzava = kreirajHashMapuDrzava();
-        ispisHashMape(mapaDrzava, "DrzavaId");
-        
-        do{
-        int drzavaId = inputInteger("DrzavaId");
-        }while(validId);
-        prikazGradovaDrzave(drzavaId);
-        int gradId = inputInteger("GradId");
+        do {
+            ispisHashMape(mapaDrzava, "DRZAVE");
+            drzavaId = inputInteger("DrzavaId");
+            if (!mapaDrzava.containsKey(drzavaId)) {
+                idNePostojiString();
+            }
+        } while (!mapaDrzava.containsKey(drzavaId));
+
+        Map<Integer, String> mapaGradova = kreirajHashMapuGradova(drzavaId);
+
+        do {
+            ispisHashMape(mapaGradova, "Gradovi");
+            gradId = inputInteger("GradId");
+            if (!mapaDrzava.containsKey(gradId)) {
+                idNePostojiString();
+            }
+        } while (!mapaDrzava.containsKey(gradId));
 
         Adresa adresa = new Adresa(ulica, kucniBroj, gradId);
         return adresa;
-    }
-
-    private static int odabirGrada() {
-        System.out.println("ODABIR GRADA");
-        System.out.println("Drzave");
-        int drzavaId;
-        drzavaId = inputInteger("Id drzava");
-        System.out.println("Gradovi");
-        prikazGradovaDrzave(drzavaId);
-        int gradId;
-        gradId = inputInteger("Id grad");
-
-        return gradId;
     }
 
     public static Kontakt unosKontakt() {
@@ -178,8 +178,8 @@ public class Inputs {
         Adresa stalnaAdresa;
         Uredaj uredaj;
 
-        trenutnaAdresa = unosAdresa();
-        stalnaAdresa = unosAdresa();
+        trenutnaAdresa = unosAdresa("TRENUTNA ADRESA");
+        stalnaAdresa = unosAdresa("STALNA ADRESA");
         uredaj = unosUredaj();
 
         Kontakt kontak = new Kontakt(trenutnaAdresa, stalnaAdresa, uredaj);
@@ -191,15 +191,15 @@ public class Inputs {
         String odnosSaPacijentom;
         Kontakt kontakt;
 
+        System.out.println("UNOS PODATAKA O RODBINI");
         osoba = unosOsoba();
 
         do {
             odnosSaPacijentom = inputText("Odnos sa pacijentom");
-
-            if (!Validator.isWord(odnosSaPacijentom)) {
+            if (!Validator.isTextSlova(odnosSaPacijentom)) {
                 exceptionFormatMsg("Odnos sa pacijentom", msgWordFormat);
             }
-        } while (!Validator.isWord(odnosSaPacijentom));
+        } while (!Validator.isWordSlova(odnosSaPacijentom));
 
         kontakt = unosKontakt();
 
@@ -214,18 +214,37 @@ public class Inputs {
         int kilaza;
         String krvnaGrupa;
 
+        System.out.println("OSOBNI DETALJI PACIJENTA");
         bracniStatus = inputBoolean("Bracni status");
-        brojUzdrzavanihOsoba = inputInteger("Broj uzdrzavanih osoba");
-        visina = inputInteger("Visina");
-        kilaza = inputInteger("Kilaza");
 
         do {
-            krvnaGrupa = inputText("Krvna grupa");
+            brojUzdrzavanihOsoba = inputInteger("Broj uzdrzavanih osoba");
+            if (brojUzdrzavanihOsoba < 0 || brojUzdrzavanihOsoba > 10) {
+                exceptionFormatMsg("Broj uzdrzavanih osoba", "broj izmedju 1 i 10");
+            }
+        } while (brojUzdrzavanihOsoba < 0 || brojUzdrzavanihOsoba > 10);
 
-            if (!Validator.isBloodType(krvnaGrupa)) {
+        do {
+            visina = inputInteger("Visina (cm)");
+            if (visina < 1 || visina > 220) {
+                exceptionFormatMsg("Visina", "broj izmedju 1 i 220");
+            }
+        } while (visina < 0 || visina > 220);
+
+        do {
+            kilaza = inputInteger("Kilaza (kg)");
+            if (kilaza < 0 || kilaza > 220) {
+                exceptionFormatMsg("Kilaza", "broj izmedju 1 i 400");
+            }
+        } while (visina < 0 || visina > 220);
+
+        do {
+            krvnaGrupa = inputWord("Krvna grupa");
+
+            if (!Validator.isTextBloodType(krvnaGrupa)) {
                 exceptionFormatMsg("Krvna grupa", msgKrvnaGrupaFormat);
             }
-        } while (!Validator.isBloodType(krvnaGrupa));
+        } while (!Validator.isTextBloodType(krvnaGrupa));
 
         OsobniDetalj osobniDetalji = new OsobniDetalj(bracniStatus, brojUzdrzavanihOsoba, visina, kilaza, krvnaGrupa);
         return osobniDetalji;
@@ -330,9 +349,8 @@ public class Inputs {
         MedicinskiDetalji medicinskiDetalji;
         Date datumRegistracije;
 
-        System.out.println("Ispis");
+        System.out.println("UNOS PODATAKA O PACIJENTU");
         osoba = unosOsoba();
-        
         datumRodjenja = inputDate("Datum rodjenja");
 
         do {
@@ -360,8 +378,15 @@ public class Inputs {
 
     }
 
+    public static String inputWord(String polje) {
+        System.out.print(polje + ":");
+        String unos = sc.nextLine();
+        String trim = unos.trim();
+        return trim;
+    }
+
     public static String inputText(String polje) {
-        System.out.print(polje + "[" + "]:");
+        System.out.print(polje + ":");
         String unos = sc.nextLine();
         return unos;
     }
@@ -374,12 +399,13 @@ public class Inputs {
     }
 
     public static int inputInteger(String polje) {
-        System.out.print(polje + ":");
+
         int broj = 0;
         boolean valid;
         do {
             valid = true;
             try {
+                System.out.print(polje + ":");
                 broj = Integer.parseInt(sc.nextLine());
             } catch (NumberFormatException ex) {
                 valid = false;
@@ -390,12 +416,11 @@ public class Inputs {
     }
 
     public static boolean inputBoolean(String polje) {
-        System.out.println(polje + "(" + msgBoolFormat + "):");
         String unos;
-
         do {
+            System.out.print(polje + "(" + msgBoolFormat + "):");
             unos = sc.nextLine();
-
+            unos = unos.toUpperCase();
             if (!unos.equals("D") && !unos.equals("N")) {
                 exceptionFormatMsg(polje, msgBoolFormat);
             }
@@ -465,7 +490,6 @@ public class Inputs {
     }
 
     private static void prikazGradovaDrzave(int idDrzava) {
-
         try {
             List<Grad> listaGradova = db.getGradoviDrzave(idDrzava);
             for (Grad grad : listaGradova) {
@@ -476,22 +500,41 @@ public class Inputs {
         }
     }
 
-    private static void ispisHashMape(Map<String, Integer> mapa, String naslov) {
-        for (Map.Entry<String, Integer> entry : mapa.entrySet()) {
-            System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+    private static void ispisHashMape(Map<Integer, String> mapa, String naslov) {
+        System.out.println(naslov);
+        System.out.println("ID\tNaziv");
+        for (Map.Entry<Integer, String> entry : mapa.entrySet()) {
+            System.out.println("[" + entry.getKey() + "]" + "\t" + entry.getValue().toString());
         }
     }
 
-    private static Map<String, Integer> kreirajHashMapuDrzava() {
-        Map<String, Integer> mapaDrzava = new HashMap<>();
+    private static Map<Integer, String> kreirajHashMapuDrzava() {
+        Map<Integer, String> mapaDrzava = new HashMap<>();
 
         try {
             for (Drzava drzava : db.getDrzave()) {
-                mapaDrzava.put(drzava.getNaziv(), drzava.getId());
+                mapaDrzava.put(drzava.getId(), drzava.getNaziv());
             }
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
         return mapaDrzava;
+    }
+
+    private static Map<Integer, String> kreirajHashMapuGradova(int drzavaId) {
+        Map<Integer, String> mapaGradova = new HashMap<>();
+
+        try {
+            for (Grad g : db.getGradoviDrzave(drzavaId)) {
+                mapaGradova.put(g.getId(), g.getNaziv());
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return mapaGradova;
+    }
+
+    private static void idNePostojiString() {
+        System.out.println("ID NE POSOJI");
     }
 }

@@ -9,9 +9,9 @@ public class Validator {
     private static final String[] poljeKrvnaGrupa = {"A+", "B+", "AB+", "A-", "B-", "AB-", "0+", "0-"};
     private static final char spolMuski = 'M';
     private static final char spolZenski = 'Z';
-    public static char[] znakoviMobitela = {'/', '+', '-'};
+    public static char[] znakoviMobitela = {'/', '+', '-', ' '};
 
-    public static boolean isTextSlova(String unos) {
+    public static boolean isWordSlova(String unos) {
         if (isEmpty(unos)) {
             return false;
         }
@@ -25,24 +25,56 @@ public class Validator {
         return true;
     }
 
-    public static boolean isTextMobitel(String unos) {
+    public static boolean isTextSlova(String unos) {
         if (isEmpty(unos)) {
             return false;
         }
+
         char[] poljeZnakova = unos.toCharArray();
         for (char c : poljeZnakova) {
-            if (Character.isDigit(c) || new String(poljeZnakova).indexOf(c) == -1) {
+            if (!Character.isLetter(c) && !Character.isWhitespace(c)) {
                 return false;
             }
         }
         return true;
     }
 
+    public static boolean isTextMobitel(String unos) {
+        if (isEmpty(unos)) {
+            return false;
+        }
+
+        if (unos.length() < 9) {
+            return false;
+        }
+
+        char[] poljeZnakova = unos.toCharArray();
+
+        for (char znak : poljeZnakova) {
+            if (!Character.isDigit(znak)) {
+                boolean specijalniZnak = false;
+                for (char temp : znakoviMobitela) {
+                    if (temp == znak) {
+                        specijalniZnak = true;
+                    }
+                }
+                if (!specijalniZnak) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public static boolean isTextKucniBroj(String unos) {
+        int zadnji = unos.length();
         if (isEmpty(unos)) {
             return false;
         }
         if (!Character.isDigit(unos.charAt(0))) {
+            return false;
+        }
+        if (!Character.isDigit(unos.charAt(0)) && !Character.isLetter(unos.charAt(zadnji - 1))) {
             return false;
         }
         if (unos.length() > 4) {
@@ -101,7 +133,7 @@ public class Validator {
 
     public static boolean isTextBloodType(String krvnaGrupa) {
         for (int i = 0; i < poljeKrvnaGrupa.length; i++) {
-            if (poljeKrvnaGrupa[i] == krvnaGrupa) {
+            if (poljeKrvnaGrupa[i].equals(krvnaGrupa)) {
                 return true;
             }
         }
@@ -119,5 +151,12 @@ public class Validator {
             return true;
         }
         return false;
+    }
+
+    private static boolean isDay(int unos) {
+        if (unos < 0 || unos > 31) {
+
+        }
+        return true;
     }
 }
