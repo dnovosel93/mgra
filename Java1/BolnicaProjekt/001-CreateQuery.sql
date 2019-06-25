@@ -366,13 +366,14 @@ END
 GO
 
 /*TIP ZAPOSLENIKA*/
-IF EXISTS(SELECT * FROM sys.tables WHERE name=N'TipZaposlenika')
-DROP TABLE TipZaposlenika
+IF EXISTS(SELECT * FROM sys.tables WHERE name=N'RadnoMjesto')
+DROP TABLE RadnoMjesto
 GO
 
-CREATE TABLE TipZaposlenika(
+CREATE TABLE RadnoMjesto(
 	Id INT PRIMARY KEY IDENTITY,
-	Naziv NVARCHAR(20)
+	Naziv NVARCHAR(20),
+	Titula NVARCHAR(15)
 )
 GO
 
@@ -382,11 +383,67 @@ DROP TABLE Zaposlenik
 GO
 
 CREATE TABLE Zaposlenik(
-	Id INT PRIMARY KEY IDENTITY,
+	SifraZaposlenika NVARCHAR(14) PRIMARY KEY,
 	OsobaId INT FOREIGN KEY REFERENCES Osoba(Id),
-	TipZaposlenika INT FOREIGN KEY REFERENCES TipZaposlenika(Id),
+	RadnoMjestoId INT FOREIGN KEY REFERENCES RadnoMjesto(Id),
 	Placa MONEY
 )
+GO
+
+/*Read*/
+CREATE VIEW ReadDoktori
+AS
+SELECT z.SifraZaposlenika,o.Ime,o.Prezime,r.Titula,r.Naziv
+FROM Zaposlenik AS z
+INNER JOIN RadnoMjesto AS r
+ON z.RadnoMjestoId = r.Id
+INNER JOIN Osoba AS o
+ON z.OsobaId = o.Id
+WHERE r.Naziv = 'Doktor opce prakse'
+GO
+
+CREATE VIEW ReadSpecijalisti
+AS
+SELECT z.SifraZaposlenika,o.Ime,o.Prezime,r.Titula,r.Naziv
+FROM Zaposlenik AS z
+INNER JOIN RadnoMjesto AS r
+ON z.RadnoMjestoId = r.Id
+INNER JOIN Osoba AS o
+ON z.OsobaId = o.Id
+WHERE r.Naziv = 'Specijalist'
+GO
+
+CREATE VIEW ReadMedicinskeSestre
+AS
+SELECT z.SifraZaposlenika,o.Ime,o.Prezime,r.Titula,r.Naziv
+FROM Zaposlenik AS z
+INNER JOIN RadnoMjesto AS r
+ON z.RadnoMjestoId = r.Id
+INNER JOIN Osoba AS o
+ON z.OsobaId = o.Id
+WHERE r.Naziv = 'Medicinska sestra'
+GO
+
+CREATE VIEW ReadDomari
+AS
+SELECT z.SifraZaposlenika,o.Ime,o.Prezime,r.Titula,r.Naziv
+FROM Zaposlenik AS z
+INNER JOIN RadnoMjesto AS r
+ON z.RadnoMjestoId = r.Id
+INNER JOIN Osoba AS o
+ON z.OsobaId = o.Id
+WHERE r.Naziv = 'Domar'
+GO
+
+CREATE VIEW ReadVozaci
+AS
+SELECT z.SifraZaposlenika,o.Ime,o.Prezime,r.Titula,r.Naziv
+FROM Zaposlenik AS z
+INNER JOIN RadnoMjesto AS r
+ON z.RadnoMjestoId = r.Id
+INNER JOIN Osoba AS o
+ON z.OsobaId = o.Id
+WHERE r.Naziv = 'Vozaci'
 GO
 
 /*KREDITNA KARTICA*/
@@ -432,7 +489,8 @@ GO
 
 CREATE TABLE LabaratorijskoTestiranje(
 	Id INT PRIMARY KEY IDENTITY,
-	Naziv NVARCHAR(50) 
+	Naziv NVARCHAR(50),
+	Cijena MONEY
 )
 GO
 
@@ -485,7 +543,7 @@ GO
 CREATE TABLE NaruceniTretmani(
 	Id INT PRIMARY KEY IDENTITY,
 	CrfId INT FOREIGN KEY REFERENCES Crf(IdOutpatient),
-	IzvrsiteljTretmanaId INT FOREIGN KEY REFERENCES Zaposlenik(Id),
+	IzvrsiteljTretmanaId NVARCHAR(14) FOREIGN KEY REFERENCES Zaposlenik(SifraZaposlenika),
 	TretmanId INT FOREIGN KEY REFERENCES Tretman(Id),
 	DatumNarudbe DATE,
 	DatumIsporuke DATE,
@@ -502,6 +560,7 @@ GO
 CREATE TABLE Lijek(
 	Id INT PRIMARY KEY IDENTITY,
 	Naziv NVARCHAR(20),
+	Proizvodac NVARCHAR(30),
 	Cijena MONEY
 )
 GO
@@ -509,7 +568,6 @@ GO
 /*KUPLJENILIJEK*/
 IF EXISTS(SELECT * FROM sys.tables WHERE name = N'KupljeniLijek')
 DROP TABLE KupljeniLijek
-GO
 
 CREATE TABLE KupljeniLijek(
 	Id INT PRIMARY KEY IDENTITY,

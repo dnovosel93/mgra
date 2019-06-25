@@ -16,6 +16,7 @@ import DAL.Rodbina;
 import DAL.Uredaj;
 import DAL.Validator;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
@@ -214,7 +215,7 @@ public class Inputs {
         int kilaza;
         String krvnaGrupa;
 
-        System.out.println("OSOBNI DETALJI PACIJENTA");
+        System.out.println("UNOS OSOBNI DETALJI PACIJENTA");
         bracniStatus = inputBoolean("Bracni status");
 
         do {
@@ -254,11 +255,20 @@ public class Inputs {
         String naziv;
         BigDecimal godisnjiPrihod;
 
+        System.out.println("UNOS PROFESIJE");
         do {
             naziv = inputText("Naziv");
-        } while (!Validator.isWord(naziv));
+            if (!Validator.isTextSlova(naziv)) {
+                exceptionFormatMsg("Naziv profesije", "Rijeci");
+            }
+        } while (!Validator.isTextSlova(naziv));
 
-        godisnjiPrihod = inputBigDecimal("Godisnji prihod");
+        do {
+            godisnjiPrihod = inputBigDecimal("Godisnji prihod");
+            if (godisnjiPrihod.compareTo(BigDecimal.ZERO) > 0) {
+                exceptionFormatMsg("Godisnji prihod", "Broj veci od 0");
+            }
+        } while (godisnjiPrihod.compareTo(BigDecimal.ZERO) > 0);
 
         Profesija profesija = new Profesija(naziv, godisnjiPrihod);
         return profesija;
@@ -275,18 +285,43 @@ public class Inputs {
         boolean redovniObroci;
         boolean kucnaKuhinja;
 
+        System.out.println("UNOS LIFESTYLE");
         vegetarijanac = inputBoolean("Vegetarijanac");
-        pusac = inputBoolean("Pusac");
 
+        pusac = inputBoolean("Pusac");
         if (pusac) {
-            avgBrojCigareta = inputInteger("Prosjecan broj cigareta");
+            do {
+                avgBrojCigareta = inputInteger("Prosjecan broj cigareta");
+                if (avgBrojCigareta > 100 || avgBrojCigareta < 0) {
+                    exceptionFormatMsg("Prosjecan broj cigareta", msgOibFormat);
+                }
+            } while (avgBrojCigareta < 0 || avgBrojCigareta > 100);
         }
+
         alkoholnaPica = inputBoolean("Konzumiranje alkoholnih pica");
         if (alkoholnaPica) {
-            avgBrojAlkoholnihPica = inputInteger("Prosjecan broj alkoholnih pica");
+            do {
+                avgBrojAlkoholnihPica = inputInteger("Prosjecan broj alkoholnih pica");
+                if (avgBrojAlkoholnihPica < 0 || avgBrojAlkoholnihPica > 50) {
+                    exceptionFormatMsg("Prosjecan broj alkoholnih pica", msgOibFormat);
+                }
+            } while (avgBrojAlkoholnihPica < 0 || avgBrojAlkoholnihPica > 50);
         }
-        avgBrojKava = inputInteger("Prosjecan broj kava");
-        avgBrojSlatkihPica = inputInteger("Prosjecan broj slatkih pica");
+
+        do {
+            avgBrojKava = inputInteger("Prosjecan broj kava");
+            if(avgBrojKava < 0 || avgBrojKava >20){
+                exceptionFormatMsg("Prosjecan broj kava", msgOibFormat);
+            }
+        } while (avgBrojKava < 0 || avgBrojKava > 20);
+        
+        do {
+            avgBrojSlatkihPica = inputInteger("Prosjecan broj slatkih pica");
+            if(avgBrojSlatkihPica < 0 || avgBrojSlatkihPica >20){
+                exceptionFormatMsg("Prosjecan broj slatkih pica", msgOibFormat);
+            }
+        } while (avgBrojSlatkihPica < 0 || avgBrojSlatkihPica > 20);
+        
         redovniObroci = inputBoolean("Redovni obroci");
         kucnaKuhinja = inputBoolean("Kucna kuhinja");
 
@@ -299,6 +334,7 @@ public class Inputs {
         String prijasnjiTretmani;
         boolean bolnickoLjecenje;
 
+        System.out.println("UNOS OSNOVNE PRITUZBE");
         izjava = inputText("Izjava");
         prijasnjiTretmani = inputText("Prijasnji tretmani");
         bolnickoLjecenje = inputBoolean("Bolnicko ljecenje");
@@ -320,6 +356,7 @@ public class Inputs {
         String lijekoviNuspojave;
         String prijasnjeOperacije;
 
+        System.out.println("UNOS MEDICINSKIH DETALJA");
         dijabeticar = inputBoolean("Dijabeticar");
         hipertenzivan = inputBoolean("Hipertenzivan");
         srcanoStanje = inputText("Srcano stanje");
